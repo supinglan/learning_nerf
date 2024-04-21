@@ -1,0 +1,7 @@
+task: 'mdm'
+gpus: [0]
+exp_name: 'a2m_humanact12'
+
+dataset: humanact12
+batch_size: 64
+num_frames: 60

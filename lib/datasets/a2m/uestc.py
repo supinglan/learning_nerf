@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pickle as pkl
-import src.utils.rotation_conversions as geometry
+import lib.datasets.utils.rotation_conversions as geometry
 import torch
 
 from .dataset import Dataset

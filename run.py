@@ -3,13 +3,19 @@ import numpy as np
 import os
 ### SCRIPTS BEGINING ###
 def run_dataset():
-    from lib.datasets import make_data_loader
+    from lib.datasets.make_dataset import make_data_loader
+    from lib.utils.data_utils import to_cuda
     import tqdm
 
     cfg.train.num_workers = 0
-    data_loader = make_data_loader(cfg, is_train=False)
+    data_loader = make_data_loader(cfg)
+    total_time = 0
+    import time
     for batch in tqdm.tqdm(data_loader):
-        pass
+        start = time.time()
+        batch = to_cuda(batch)
+        total_time += time.time() - start
+    print(total_time / len(data_loader))
 
 def run_network():
     from lib.networks import make_network
