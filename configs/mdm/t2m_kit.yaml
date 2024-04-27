@@ -1,7 +1,7 @@
 task: 'mdm'
 gpus: [0]
-exp_name: 'a2m_uestc'
+exp_name: 'a2m_kit'
 
-dataset: uestc
+dataset: kit
 batch_size: 64
 num_frames: 60

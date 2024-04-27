@@ -1,8 +1,7 @@
 import torch
 
 
-def lengths_to_mask(lengths):
-    max_len = max(lengths)
+def lengths_to_mask(lengths, max_len):
     mask = torch.arange(max_len, device=lengths.device).expand(len(lengths), max_len) < lengths.unsqueeze(1)
     return mask
     
@@ -21,18 +20,39 @@ def collate_tensors(batch):
 
 
 def collate(batch):
-    databatch = [b[0] for b in batch]
-    labelbatch = [b[1] for b in batch]
-    lenbatch = [len(b[0][0][0]) for b in batch]
+    notnone_batches = [b for b in batch if b is not None]
+    databatch = [b['inp'] for b in notnone_batches]
+    if 'lengths' in notnone_batches[0]:
+        lenbatch = [b['lengths'] for b in notnone_batches]
+    else:
+        lenbatch = [len(b['inp'][0][0]) for b in notnone_batches]
+
 
     databatchTensor = collate_tensors(databatch)
-    labelbatchTensor = torch.as_tensor(labelbatch)
     lenbatchTensor = torch.as_tensor(lenbatch)
+    maskbatchTensor = lengths_to_mask(lenbatchTensor, databatchTensor.shape[-1]).unsqueeze(1).unsqueeze(1) # unqueeze for broadcasting
 
-    maskbatchTensor = lengths_to_mask(lenbatchTensor)
-    batch = {"x": databatchTensor, "y": labelbatchTensor,
-             "mask": maskbatchTensor, "lengths": lenbatchTensor}
-    return batch
+    motion = databatchTensor
+    cond = {'y': {'mask': maskbatchTensor, 'lengths': lenbatchTensor}}
+
+    if 'text' in notnone_batches[0]:
+        textbatch = [b['text'] for b in notnone_batches]
+        cond['y'].update({'text': textbatch})
+
+    if 'tokens' in notnone_batches[0]:
+        textbatch = [b['tokens'] for b in notnone_batches]
+        cond['y'].update({'tokens': textbatch})
+
+    if 'action' in notnone_batches[0]:
+        actionbatch = [b['action'] for b in notnone_batches]
+        cond['y'].update({'action': torch.as_tensor(actionbatch).unsqueeze(1)})
+
+    # collate action textual names
+    if 'action_text' in notnone_batches[0]:
+        action_text = [b['action_text']for b in notnone_batches]
+        cond['y'].update({'action_text': action_text})
+
+    return motion, cond
 
 # an adapter to our collate func
 def t2m_collate(batch):

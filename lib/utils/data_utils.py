@@ -1,3 +1,4 @@
+import pdb
 import numpy as np
 import cv2
 import random
@@ -533,6 +534,8 @@ def load_ply(path):
     return model
 
 def to_cuda(batch, device=torch.device('cuda:0')):
+    # pdb.set_trace()
+    # print(type(batch))
     if isinstance(batch, tuple) or isinstance(batch, list):
         #batch[k] = [b.cuda() for b in batch[k]]
         #batch[k] = [b.to(self.device) for b in batch[k]]
@@ -546,7 +549,7 @@ def to_cuda(batch, device=torch.device('cuda:0')):
             else:
                 batch_[key] = to_cuda(batch[key], device)
         batch = batch_
-    else:
+    elif isinstance(batch, torch.Tensor):
         # batch[k] = batch[k].cuda()
         batch = batch.to(device)
     return batch

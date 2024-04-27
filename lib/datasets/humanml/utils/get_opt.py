@@ -34,6 +34,7 @@ def get_opt(opt_path, device):
             '------------ Options -------------',
             '\n')
     print('Reading', opt_path)
+    
     with open(opt_path) as f:
         for line in f:
             if line.strip() not in skip:
